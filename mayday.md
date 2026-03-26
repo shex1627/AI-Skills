@@ -14,16 +14,36 @@ description: >
 The user is invoking this because something broke down — the agent got confused, looped,
 hallucinated, ignored constraints, or just didn't help. This skill has two sequential jobs:
 
-**Part 1 — Save the session.** Produce a structured summary before context is lost.  
+**Part 1 — Save the session.** Produce a structured summary before context is lost.
 **Part 2 — Diagnose the failure.** Run a frank post-mortem on what went wrong and why.
 
 Do both parts every time. Do not skip Part 2 to be polite.
 
 ---
 
+## OUTPUT: Always Write to a File
+
+Every mayday invocation MUST write its full output (Part 1 + Part 2) to a new markdown file.
+
+**Output directory resolution (in priority order):**
+1. If the current project has a `CLAUDE.md` or `.claude/settings.json` that defines `mayday_output_dir`, use that path.
+2. If the current project has a `mayday/` directory, use it.
+3. Otherwise, create a `mayday/` directory in the current project root.
+
+**File naming:** `mayday-YYYY-MM-DD-[short-slug].md` where `short-slug` is a 2-3 word kebab-case summary of the topic (e.g., `mayday-2026-03-26-skill-setup.md`).
+
+**Procedure:**
+1. Check for a configured `mayday_output_dir` in `CLAUDE.md` (look for a line like `mayday_output_dir: path/to/dir`) or in `.claude/settings.json` (look for a `"mayday_output_dir"` key).
+2. If not configured, check if a `mayday/` directory exists in the project root. If not, create it.
+3. Write the full mayday output to a new file in that directory.
+4. Also display the output to the user in the conversation.
+5. Tell the user the file path when done.
+
+---
+
 ## PART 1: Session Summary
 
-Produce a markdown block the user can paste into a notes file, new chat, or handoff doc.
+Produce the following structured markdown and write it to the output file.
 Use this exact structure:
 
 ```
